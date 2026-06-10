@@ -1,0 +1,1 @@
+I added a skill named {{SKILL_NAME}} to this folder. Install it into my global skills (in the home directory: ~/.claude/skills/ on Mac/Linux, or %USERPROFILE%\.claude\skills\ on Windows, not inside this project). After copying, delete the folder from the project and tell me when it's done.
