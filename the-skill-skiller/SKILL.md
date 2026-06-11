@@ -181,6 +181,11 @@ Ask: "This is what I'm about to write to disk. Approve, or fix something?"
 - The target is ALWAYS the global skills directory identified in Step 0 (absolute path), never the project folder.
 - Create directories per the detected OS (Bash), then `Write` each file.
 - Inject `templates/install-README.md` and `install-prompt.txt` into the skill folder with `{{SKILL_NAME}}` replaced by the real name.
+- **Windows only**: after writing, convert all the skill's text files to CRLF line endings.
+  The slash-command indexer on Windows may skip LF-only files. Run in PowerShell:
+  ```powershell
+  Get-ChildItem -Recurse "$env:USERPROFILE\.claude\skills\[SKILL_NAME]" -Include *.md,*.txt,*.ps1 | ForEach-Object { $c = [System.IO.File]::ReadAllText($_.FullName); $c = $c -replace "(?<!`r)`n", "`r`n"; [System.IO.File]::WriteAllText($_.FullName, $c) }
+  ```
 - After writing, `Read` SKILL.md to verify it saved correctly, and run `ls` on the skill folder.
   Show the user the file list with the full path as proof of installation. If anything is missing, fix it before moving on.
 
