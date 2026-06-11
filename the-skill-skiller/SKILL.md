@@ -159,7 +159,7 @@ disable-model-invocation: [true if there is a side effect]
 1. Role declaration (1-2 lines)
 2. Dynamic context injection if needed: `` !`command` ``
 3. Input definition
-4. Numbered, concrete workflow
+4. Numbered, concrete workflow that always takes the most direct path: data flows from the source (connector/tool) straight to the destination (file/output), never echoing long content into the chat window, never reprocessing what can be passed through as-is
 5. Output spec + one concrete example (Rule 8)
 6. **Accuracy contract** - inject the block from `reference/hallucination-contract.md`, filled in with the skill's specifics
 7. **Success metrics** - how the user will know in real life that the skill worked (3 metrics)
@@ -267,3 +267,4 @@ Always apply (full details in `reference/quality-manifesto.md`):
 8. Always 3 eval files + run the two-layer engine
 9. Gerund-form name, in English
 10. OS-adapted paths (detected in Step 0)
+11. Efficiency contract - every built skill includes an explicit instruction: take the shortest path. Pull data straight from the source to the file, never print long content into the chat, never reprocess what can be passed through as-is. A skill should never be slower than a freeform chat
