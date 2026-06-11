@@ -68,6 +68,9 @@ Options: Formatted document/report · Textual analysis · Code/scripts · JSON/s
 **Question 2** - "What tools does the skill need?"
 Options: Knowledge and input only (no tools) · Web search · Local files and Git · External API/DB · A mix of several tools
 
+Important: phrase the options in both questions so they fit the idea the user wrote, not generic lists.
+If the user is forced to pick "Other" more than once, your options were not tailored enough.
+
 After collecting answers, combine them with $ARGUMENTS and go straight to Step 3.
 
 ---
@@ -122,6 +125,14 @@ Pick a Blueprint (1-5) and a file structure.
 ---
 
 ## Step 5 - Build (with Dry-run)
+
+### 5.0 - Summary before building (mandatory, including quick mode)
+Before you start drafting any files, present a short plain-language summary:
+- What the skill will do (one sentence)
+- What goes in and what comes out
+- What it deliberately will NOT do
+Then ask: "Anything you want to add or change before I build?"
+Wait for the answer. Do not start building until the user replies.
 
 ### 5.1 - Draft all files in memory (do not write to disk yet)
 Build the full SKILL.md + every reference/subagent/eval file according to the rules:
