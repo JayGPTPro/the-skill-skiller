@@ -131,8 +131,12 @@ Before you start drafting any files, present a short plain-language summary:
 - What the skill will do (one sentence)
 - What goes in and what comes out
 - What it deliberately will NOT do
-Then ask: "Anything you want to add or change before I build?"
-Wait for the answer. Do not start building until the user replies.
+Along with the summary, run a single `AskUserQuestion` with two questions:
+1. **"What should the skill be called?"** - propose 3 names (short! easy to type, English, hyphens).
+   This is the command the user will type every time, so `summarizing-meetings` beats anything long and complicated.
+   The user can always type their own name via Other.
+2. **"Anything to add or change before I build?"** - options: "No, build it" / "Yes, one more thing".
+Wait for the answers. Do not start building until the user replies.
 
 ### 5.1 - Draft all files in memory (do not write to disk yet)
 Build the full SKILL.md + every reference/subagent/eval file according to the rules:
