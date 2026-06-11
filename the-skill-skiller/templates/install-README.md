@@ -18,11 +18,13 @@ not inside this project). After copying, delete the folder from the project and 
 
 ## The Manual Way
 
-Copy the `{{SKILL_NAME}}` folder into the global skills directory:
-- **Mac / Linux**: `~/.claude/skills/{{SKILL_NAME}}/`
-- **Windows**: `%USERPROFILE%\.claude\skills\{{SKILL_NAME}}\`
-
-(The `.claude` folder is hidden. On Mac press `Cmd+Shift+.` in Finder to show hidden files.)
+1. Open your home directory and find the hidden `.claude` folder
+   (Mac: press `Cmd+Shift+.` in Finder to show hidden files. Windows: File Explorer > View > Hidden items).
+2. Inside it, open the `skills` folder. No `skills` folder? Create one.
+3. Copy the `{{SKILL_NAME}}` folder in there:
+   - **Mac / Linux**: `~/.claude/skills/{{SKILL_NAME}}/`
+   - **Windows**: `%USERPROFILE%\.claude\skills\{{SKILL_NAME}}\`
+4. Restart Claude Code.
 
 ## Verify It Works
 Open a new Claude Code session and type `/{{SKILL_NAME}}`. If it appears in the list, it is installed.
