@@ -178,9 +178,11 @@ Ask: "This is what I'm about to write to disk. Approve, or fix something?"
 **Write nothing until approved.**
 
 ### 5.3 - Write to disk (after approval)
+- The target is ALWAYS the global skills directory identified in Step 0 (absolute path), never the project folder.
 - Create directories per the detected OS (Bash), then `Write` each file.
 - Inject `templates/install-README.md` and `install-prompt.txt` into the skill folder with `{{SKILL_NAME}}` replaced by the real name.
-- After writing, `Read` SKILL.md to verify it saved correctly.
+- After writing, `Read` SKILL.md to verify it saved correctly, and run `ls` on the skill folder.
+  Show the user the file list with the full path as proof of installation. If anything is missing, fix it before moving on.
 
 ---
 
@@ -222,6 +224,7 @@ Show a clean summary:
    • Collision: [clean / overlap warning with ...]
 
 🚀 How to use:
+   Important: a new skill only loads in a new session. Open a fresh Claude Code window/session, then:
    /[name] [argument]   -   example: /[name] [concrete example]
 
 📋 3 ready-to-try commands (copy-paste):
