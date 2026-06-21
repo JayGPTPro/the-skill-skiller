@@ -34,7 +34,7 @@ Why split? If you improve and test on the same sentences, it is easy to "cheat" 
 the exam in advance). The split ensures the description is genuinely general and good, not memorized.
 
 ### Step 3 - Run the check through a "naive" subagent
-For each sentence, launch a subagent (Agent tool) that receives **only** the new skill's description
+For each sentence, launch a subagent (the subagent / Task tool) that receives **only** the new skill's description
 plus the list of the other skills, and ask:
 
 > "A user wrote: '[sentence]'. From the following skills, which would you choose (if any)?
@@ -45,20 +45,20 @@ Score: on trigger sentences, correct if it chose the new skill. On distractor se
 
 ### Step 4 - Compute the trigger-rate
 `trigger-rate = (correct answers / total sentences) x 100`
-Pass threshold: **>= 80% on the Test set**.
+Pass threshold: on the 4-sentence Test set, **all 4 must be correct** (a single miss fails and triggers the improvement loop). With only 4 items the possible scores are 0/25/50/75/100, so "high enough" means 4/4, not an 80% that cannot occur. If you want a softer bar, widen the split to more test sentences first.
 
 ---
 
 ## The Improvement Loop (Multiple Description Candidates)
 
-If the trigger-rate is below the threshold, do not rewrite one description and hope. Do this:
+If any test sentence misses (not 4/4), do not rewrite one description and hope. Do this:
 
 1. Generate **3 alternative description drafts**, each emphasizing a different angle
    (different verbs, different trigger phrases, different WHEN phrasing).
 2. Run Layer A (on the Train set) for each of the 3 candidates.
 3. Pick the candidate with the highest score.
 4. Run it once on the Test set for final confirmation.
-5. If still below the threshold after 2 rounds, stop and present to the user for a manual decision (do not get stuck in an infinite loop).
+5. If still not 4/4 after 2 rounds, stop and present to the user for a manual decision (do not get stuck in an infinite loop).
 
 **"Just test" mode**: if the user asked not to auto-fix, skip the loop,
 simply show the score and what failed, and let them decide.
@@ -115,7 +115,7 @@ If basic or realistic fails, go back to SKILL.md, fix the relevant step/rule, an
 Layer A (Trigger)
   ├─ 10 sentences (including 3 distractors) -> split 6 train / 4 test
   ├─ a naive subagent measures trigger-rate on test
-  ├─ if < 80%: 3 description candidates -> pick the winner -> test again (max 2 rounds)
+  ├─ if not 4/4: 3 description candidates -> pick the winner -> test again (max 2 rounds)
   └─ collision detection against installed skills
 
 Layer B (Quality)

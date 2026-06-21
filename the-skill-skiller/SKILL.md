@@ -33,9 +33,9 @@ Set path variables for use throughout the skill:
 Every path and every script from here on must match the detected OS. Never write hardcoded Windows paths on Mac or vice versa.
 
 ### 0.2 - Detect the mode
-Check the `$ARGUMENTS` argument:
-- **Empty / whitespace only** = full interview mode = go to Step 1
-- **Has content (an idea / keyword / domain)** = quick build mode = go to Step 1-fast
+The argument only tells you whether the user already has a starting idea. How DEEP the interview goes is the user's choice, not something you decide from the argument (a simple idea may want a thorough interview; a complex one may want it fast). You will ask that explicitly in Step 1.
+- **Empty / whitespace only** = no idea yet = go to Step 1
+- **Has content (an idea / keyword / domain)** = idea in hand = go to Step 1-fast
 
 ---
 
@@ -52,7 +52,11 @@ Options: Repetitive, tedious process · Research/analysis/information gathering 
 **Question 3** - "Who will mainly use the skill?"
 Options: Just me (technical) · Small team (mixed) · Non-technical team · Several departments
 
-After collecting answers, go to Step 2.
+**Question 4 (depth calibration)** - "How thorough should I be before building?"
+Options: Quick - a couple of questions, build fast · Thorough - interview me properly so there are fewer surprises later
+This sets the interview depth. It is the user's call, not yours.
+
+After collecting answers: if they chose **Thorough**, go to Step 2. If they chose **Quick**, skip to Step 3 (but still run the Data & Sources probe from Step 2 if the skill touches existing data, that is correctness, not preference).
 
 ---
 
@@ -68,7 +72,11 @@ Options: Formatted document/report · Textual analysis · Code/scripts · JSON/s
 **Question 2** - "What tools does the skill need?"
 Options: Knowledge and input only (no tools) · Web search · Local files and Git · External API/DB · A mix of several tools
 
-Important: phrase the options in both questions so they fit the idea the user wrote, not generic lists.
+**Question 3 (depth calibration)** - "How thorough should I be before building?"
+Options: Quick - build from this, ask only if essential · Thorough - interview me properly first
+If they choose Thorough, run the Step 2 deep-dive questions before Step 3.
+
+Important: phrase the options in all questions so they fit the idea the user wrote, not generic lists.
 If the user is forced to pick "Other" more than once, your options were not tailored enough.
 
 **If the idea involves existing data** (emails, files, records, a CRM), add one more question: "Where does each input actually live, and what here should I NOT trust?" The built skill must pull from those sources and exhaust them before asking the human. Asking the user for a fact that already lives in a system is the failure mode to avoid.
@@ -78,6 +86,8 @@ After collecting answers, combine them with $ARGUMENTS and go straight to Step 3
 ---
 
 ## Step 2 - Interview: Deep Dive
+
+Run this step only if the user chose **Thorough** in the depth-calibration question. (If they chose Quick, you are here only for the Data & Sources probe below, when the skill touches existing data.)
 
 Now read `reference/interview-questions.md`.
 
@@ -142,6 +152,7 @@ Before you start drafting any files, present a short plain-language summary:
 - **Assumptions** - list every assumption you are about to bake in, tagged separately from hard rules. Where data comes from, which fields you trust, naming/format conventions, identifier behavior. The user corrects all of them in one pass here, instead of discovering a wrong assumption later in real use. This is the single most valuable line in the summary.
 Along with the summary, run a single `AskUserQuestion` with two questions:
 1. **"What should the skill be called?"** - propose 3 names (short! easy to type, English, hyphens).
+   Reuse the chosen concept's gerund name from Step 3 as option 1, do not ask as if from scratch.
    This is the command the user will type every time, so `summarizing-meetings` beats anything long and complicated.
    The user can always type their own name via Other.
 2. **"Anything to add or change before I build?"** - options: "No, build it" / "Yes, one more thing".
@@ -196,7 +207,7 @@ Ask: "This is what I'm about to write to disk. Approve, or fix something?"
 - The target is ALWAYS the global skills directory identified in Step 0 (absolute path), never the project folder.
 - Create directories per the detected OS (Bash), then `Write` each file.
 - Inject `templates/install-README.md` and `install-prompt.txt` into the skill folder with `{{SKILL_NAME}}` replaced by the real name.
-  After writing them, `grep` the skill folder for `{{SKILL_NAME}}` and confirm zero matches. If any remain, the substitution failed, fix it before continuing.
+  After writing them, `grep` the newly-written skill folder (the global one, not the-skill-skiller's own templates) for `{{SKILL_NAME}}` and confirm zero matches. If any remain, the substitution failed, fix it before continuing.
 - **Windows only**: after writing, convert all the skill's text files to CRLF line endings.
   The slash-command indexer on Windows may skip LF-only files. Run in PowerShell:
   ```powershell
@@ -209,7 +220,7 @@ Ask: "This is what I'm about to write to disk. Approve, or fix something?"
 
 ## Step 6 - Two-Layer Eval (the heart of the differentiation)
 
-Now read `reference/eval-engine.md` and run both layers using subagents (Agent tool):
+Now read `reference/eval-engine.md` and run both layers by spawning subagents (the subagent / Task tool, whatever your Claude Code build exposes; it stays callable even if not listed in allowed-tools):
 
 1. **Layer A (Trigger)**: 10 sentences (including 3 distractors) = split 6 train / 4 test = a naive subagent measures the trigger-rate.
 2. If < 80%: default = improvement loop (3 description candidates = pick the winner = test again, max 2 rounds).
@@ -247,8 +258,8 @@ Show a clean summary:
    • Collision: [clean / overlap warning with ...]
 
 🚀 How to use:
-   Important: a new skill only loads in a new session. Open a fresh Claude Code window/session, then:
    /[name] [argument]   -   example: /[name] [concrete example]
+   (Skills hot-load in your current session. The one exception: if the ~/.claude/skills/ folder did not exist when this session started, restart Claude Code once so it gets watched.)
 
 📋 3 ready-to-try commands (copy-paste):
    1. /[name] [happy path]
