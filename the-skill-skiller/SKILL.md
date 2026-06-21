@@ -71,6 +71,8 @@ Options: Knowledge and input only (no tools) · Web search · Local files and Gi
 Important: phrase the options in both questions so they fit the idea the user wrote, not generic lists.
 If the user is forced to pick "Other" more than once, your options were not tailored enough.
 
+**If the idea involves existing data** (emails, files, records, a CRM), add one more question: "Where does each input actually live, and what here should I NOT trust?" The built skill must pull from those sources and exhaust them before asking the human. Asking the user for a fact that already lives in a system is the failure mode to avoid.
+
 After collecting answers, combine them with $ARGUMENTS and go straight to Step 3.
 
 ---
@@ -82,6 +84,12 @@ Now read `reference/interview-questions.md`.
 Based on the round 1 answers, pick the 2-3 most relevant questions from the per-domain question bank.
 Ask them in a single `AskUserQuestion`. Areas to probe: exact output, tools/systems, frequency/users,
 sensitive data / need for human approval, "what does success look like".
+
+**Then, if the skill consumes ANY existing data (emails, files, records, a CRM, past outputs), run the Data & Sources probe.** This is the highest-leverage part of the interview. Skip it only for pure knowledge/generation skills that invent everything from the prompt. Ask in one `AskUserQuestion`, tailored to the user's idea:
+- **"Where does each input actually live?"** Name the system of record for every input (e.g. "the supplier name is in the order email, not something I type"). The built skill must pull from these sources and treat asking the human as the LAST resort, never the first.
+- **"What here should I NOT trust?"** Fields that look authoritative but aren't: defaults, placeholders, values the user maintains elsewhere. The skill must not confidently pull these.
+- **"Any conventions I should follow?"** Invisible workflow rules: naming, formatting, ordering, where things get placed. Capture them now, not through correction later.
+- **For any key identifier** (order number, SKU, client ID): does it always exist at this point, can it duplicate, who assigns it and when? If relevant, the skill gets verification/collision checks.
 
 ---
 
@@ -131,6 +139,7 @@ Before you start drafting any files, present a short plain-language summary:
 - What the skill will do (one sentence)
 - What goes in and what comes out
 - What it deliberately will NOT do
+- **Assumptions** - list every assumption you are about to bake in, tagged separately from hard rules. Where data comes from, which fields you trust, naming/format conventions, identifier behavior. The user corrects all of them in one pass here, instead of discovering a wrong assumption later in real use. This is the single most valuable line in the summary.
 Along with the summary, run a single `AskUserQuestion` with two questions:
 1. **"What should the skill be called?"** - propose 3 names (short! easy to type, English, hyphens).
    This is the command the user will type every time, so `summarizing-meetings` beats anything long and complicated.
@@ -169,6 +178,12 @@ disable-model-invocation: [true if there is a side effect]
    Allowed: [list]
    Forbidden: [list]
    ```
+9. **Learnings loop** - end every built skill with:
+   ```
+   ## Learnings
+   (Corrections collected from real use. When an assumption here proves wrong, propose updating this section, do not silently rewrite.)
+   ```
+   Plus one line in the workflow: "If the user corrects an assumption mid-run, note it and offer to fold it into Learnings so the skill improves with use instead of freezing at v1."
 
 **reference / subagents / evals** - as needed (see blueprints). Always 3 eval files (Rule 9).
 
@@ -181,6 +196,7 @@ Ask: "This is what I'm about to write to disk. Approve, or fix something?"
 - The target is ALWAYS the global skills directory identified in Step 0 (absolute path), never the project folder.
 - Create directories per the detected OS (Bash), then `Write` each file.
 - Inject `templates/install-README.md` and `install-prompt.txt` into the skill folder with `{{SKILL_NAME}}` replaced by the real name.
+  After writing them, `grep` the skill folder for `{{SKILL_NAME}}` and confirm zero matches. If any remain, the substitution failed, fix it before continuing.
 - **Windows only**: after writing, convert all the skill's text files to CRLF line endings.
   The slash-command indexer on Windows may skip LF-only files. Run in PowerShell:
   ```powershell
@@ -200,6 +216,8 @@ Now read `reference/eval-engine.md` and run both layers using subagents (Agent t
    If the user asked to "just test" = skip the improvement, only show the score.
 3. **Collision detection**: check against the actually installed skills (read descriptions from `[skills-dir]`). Warn about overlap.
 4. **Layer B (Quality)**: run each eval through a subagent and get real output; a judge subagent scores it against the Pass Criteria. basic+realistic must pass.
+
+**The 3 eval files must cover the non-happy paths, not just clean input.** At least one eval must test: the skill pulls data that already exists instead of asking for it; a missing, duplicate, or late identifier; and a correction the user makes mid-run. A skill that only works when the user hands it perfect inputs has not been tested.
 
 Collect all the scores for the delivery report.
 
@@ -268,3 +286,6 @@ Always apply (full details in `reference/quality-manifesto.md`):
 9. Gerund-form name, in English
 10. OS-adapted paths (detected in Step 0)
 11. Efficiency contract - every built skill includes an explicit instruction: take the shortest path. Pull data straight from the source to the file, never print long content into the chat, never reprocess what can be passed through as-is. A skill should never be slower than a freeform chat
+12. Source-first - the built skill exhausts its named data sources before asking the human. Asking for a fact that already lives in a system is a bug, not a feature
+13. Assumptions surfaced - separate hard rules from assumptions, and list the assumptions at the summary gate so the user corrects them in one pass
+14. Learnings loop - every built skill ships with a `## Learnings` section and folds in corrections from real use instead of freezing at v1
